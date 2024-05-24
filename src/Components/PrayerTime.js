@@ -9,7 +9,7 @@ export default function PrayerTime({ name, prayerTime, image }) {
   return (
     <div>
       <Grid container style={{ paddingTop: "4%", textAlign: "right" }}>
-        <Grid>
+        <Grid  >
           <Card>
             <CardMedia
               component="img"

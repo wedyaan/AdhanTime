@@ -13,22 +13,31 @@ import Stack from "@mui/material/Stack";
 import axios from "axios";
 import moment from "moment";
 import "../App.css";
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
 
 import PrayerTime from "../Components/PrayerTime";
 import "moment/dist/locale/ar";
 moment.locale("ar");
 
 export default function Navbar() {
+  // STATES
   const [nextPrayerIndex, setNextPrayerIndex] = useState(2);
+  const [timings, setTimings] = useState({
+    Fajr: "04:20",
+    Dhuhr: "11:50",
+    Asr: "15:18",
+    Sunset: "18:03",
+    Isha: "19:33",
+  });
 
-  const [todayDate, setTodayDate] = useState("");
   const [remainingTime, setRemainingTime] = useState("");
 
   const [selectedCity, setSelectedCity] = useState({
     displayName: "مكة المكرمة",
     apiName: "Makkah al Mukarramah",
   });
+
+  const [today, setToday] = useState("");
 
   const avilableCities = [
     {
@@ -44,6 +53,7 @@ export default function Navbar() {
       apiName: "Dammam",
     },
   ];
+
   const prayersArray = [
     { key: "Fajr", displayName: "الفجر" },
     { key: "Dhuhr", displayName: "الظهر" },
@@ -51,26 +61,11 @@ export default function Navbar() {
     { key: "Sunset", displayName: "المغرب" },
     { key: "Isha", displayName: "العشاء" },
   ];
-
-  const handleCityChange = (event) => {
-    const cityObject = avilableCities.find((city) => {
-      return city.apiName === event.target.value;
-    });
-    setSelectedCity(cityObject);
-  };
-  const [timings, setTimings] = useState({
-    Fajr: "04:30",
-    Dhuhr: "11:50",
-    Asr: "15:18",
-    Sunset: "18:03",
-    Isha: "19:33",
-  });
-
   const getTimings = async () => {
-    const res = await axios.get(
+    const response = await axios.get(
       `https://api.aladhan.com/v1/timingsByCity?country=SA&city=${selectedCity.apiName}`
     );
-    setTimings(res.data.data.timings);
+    setTimings(response.data.data.timings);
   };
   useEffect(() => {
     getTimings();
@@ -82,12 +77,16 @@ export default function Navbar() {
     }, 1000);
 
     const t = moment();
-    setTodayDate(t.format("MMM Do YYYY | h:mm"));
+    setToday(t.format("MMM Do YYYY | h:mm"));
 
     return () => {
       clearInterval(interval);
     };
   }, [timings]);
+
+  // const data = await axios.get(
+  // 	"https://api.aladhan.com/v1/timingsByCity?country=SA&city=Riyadh"
+  // );
 
   const setupCountdownTimer = () => {
     const momentNow = moment();
@@ -137,19 +136,19 @@ export default function Navbar() {
 
       remainingTime = totalDiffernce;
     }
-    console.log(remainingTime);
 
     const durationRemainingTime = moment.duration(remainingTime);
 
     setRemainingTime(
       `${durationRemainingTime.seconds()} : ${durationRemainingTime.minutes()} : ${durationRemainingTime.hours()}`
     );
-    console.log(
-      "duration issss ",
-      durationRemainingTime.hours(),
-      durationRemainingTime.minutes(),
-      durationRemainingTime.seconds()
-    );
+  };
+  const handleCityChange = (event) => {
+    const cityObject = avilableCities.find((city) => {
+      return city.apiName === event.target.value;
+    });
+    console.log("the new value is ", event.target.value);
+    setSelectedCity(cityObject);
   };
 
   return (
@@ -192,7 +191,7 @@ export default function Navbar() {
               component="div"
               sx={{ color: "white" }}
             >
-              {todayDate}
+              {today}
             </Typography>
           </Box>
         </Toolbar>
@@ -208,7 +207,7 @@ export default function Navbar() {
               style={{ color: "white" }}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              // value={age}
+              value={"Dammam"}
               label="Age"
               onChange={handleCityChange}
             >
