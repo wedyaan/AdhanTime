@@ -13,31 +13,20 @@ import Stack from "@mui/material/Stack";
 import axios from "axios";
 import moment from "moment";
 import "../App.css";
-// import Grid from "@mui/material/Grid";
-
 import PrayerTime from "../Components/PrayerTime";
 import "moment/dist/locale/ar";
 moment.locale("ar");
 
 export default function Navbar() {
-  // STATES
   const [nextPrayerIndex, setNextPrayerIndex] = useState(2);
-  const [timings, setTimings] = useState({
-    Fajr: "04:20",
-    Dhuhr: "11:50",
-    Asr: "15:18",
-    Sunset: "18:03",
-    Isha: "19:33",
-  });
 
+  const [todayDate, setTodayDate] = useState("");
   const [remainingTime, setRemainingTime] = useState("");
 
   const [selectedCity, setSelectedCity] = useState({
     displayName: "مكة المكرمة",
     apiName: "Makkah al Mukarramah",
   });
-
-  const [today, setToday] = useState("");
 
   const avilableCities = [
     {
@@ -53,7 +42,6 @@ export default function Navbar() {
       apiName: "Dammam",
     },
   ];
-
   const prayersArray = [
     { key: "Fajr", displayName: "الفجر" },
     { key: "Dhuhr", displayName: "الظهر" },
@@ -61,11 +49,28 @@ export default function Navbar() {
     { key: "Sunset", displayName: "المغرب" },
     { key: "Isha", displayName: "العشاء" },
   ];
+
+  const handleCityChange = (event) => {
+    const cityObject = avilableCities.find((city) => {
+      return city.apiName === event.target.value;
+    });
+
+    setSelectedCity(cityObject);
+  };
+
+  const [timings, setTimings] = useState({
+    Fajr: "04:30",
+    Dhuhr: "11:50",
+    Asr: "15:18",
+    Sunset: "18:03",
+    Isha: "19:33",
+  });
+
   const getTimings = async () => {
-    const response = await axios.get(
+    const res = await axios.get(
       `https://api.aladhan.com/v1/timingsByCity?country=SA&city=${selectedCity.apiName}`
     );
-    setTimings(response.data.data.timings);
+    setTimings(res.data.data.timings);
   };
   useEffect(() => {
     getTimings();
@@ -77,16 +82,12 @@ export default function Navbar() {
     }, 1000);
 
     const t = moment();
-    setToday(t.format("MMM Do YYYY | h:mm"));
+    setTodayDate(t.format("MMM Do YYYY | h:mm"));
 
     return () => {
       clearInterval(interval);
     };
   }, [timings]);
-
-  // const data = await axios.get(
-  // 	"https://api.aladhan.com/v1/timingsByCity?country=SA&city=Riyadh"
-  // );
 
   const setupCountdownTimer = () => {
     const momentNow = moment();
@@ -143,13 +144,6 @@ export default function Navbar() {
       `${durationRemainingTime.seconds()} : ${durationRemainingTime.minutes()} : ${durationRemainingTime.hours()}`
     );
   };
-  const handleCityChange = (event) => {
-    const cityObject = avilableCities.find((city) => {
-      return city.apiName === event.target.value;
-    });
-    console.log("the new value is ", event.target.value);
-    setSelectedCity(cityObject);
-  };
 
   return (
     <Box sx={{ flexGrow: 1, marginTop: "20px" }}>
@@ -160,6 +154,8 @@ export default function Navbar() {
             edge="start"
             aria-label="open drawer"
             sx={{ mr: 1, color: "white" }}
+            href="https://github.com/wedyaan"
+            target="_blank"
           >
             <GitHubIcon />
           </IconButton>
@@ -191,7 +187,7 @@ export default function Navbar() {
               component="div"
               sx={{ color: "white" }}
             >
-              {today}
+              {todayDate}
             </Typography>
           </Box>
         </Toolbar>
@@ -199,15 +195,17 @@ export default function Navbar() {
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          style={{ paddingTop: "6%", direction: "rtl" }}
+          style={{ direction: "rtl", paddingTop: "4%" }}
         >
           <FormControl style={{ width: "20%" }}>
-            <InputLabel style={{ color: "white" }}>المدينة</InputLabel>
+            <InputLabel style={{ color: "black", fontSize: "20px" }}>
+              المدينة
+            </InputLabel>
             <Select
               style={{ color: "white" }}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              value={"Dammam"}
+              // value={age}
               label="Age"
               onChange={handleCityChange}
             >
@@ -240,14 +238,12 @@ export default function Navbar() {
             </Typography>
           </Box>{" "}
         </Stack>
-
-        {/*  */}
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
           flexWrap={"wrap"}
-          style={{ direction: "rtl", gap: "10px" }}
+          style={{ direction: "rtl", gap: "10px", paddingTop: "6%" }}
           sx={{
             flexDirection: {
               xs: "column",
@@ -302,6 +298,8 @@ export default function Navbar() {
             }
           />
         </Stack>
+
+        {/*  */}
       </div>
     </Box>
   );
